@@ -14,7 +14,6 @@ import FlashMessage, { showMessage } from "react-native-flash-message";
 import { useDispatch } from "react-redux";
 import { signupUser } from "../redux/Auth/authSlice";
 import { useRouter } from "expo-router";
-import axiosInstance from "../Utils";
 
 const signup = () => {
   //These are all states
@@ -58,7 +57,7 @@ const signup = () => {
     }
   };
 
-  const buttonHandler = async (e) => {
+  const buttonHandler = async () => {
     if (user.password !== confirmPassword) {
       showMessage({
         message: "Your password is not match",

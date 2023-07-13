@@ -7,16 +7,16 @@ import {
   StyleSheet,
 } from "react-native";
 import { loginUser } from "../redux/Auth/authSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "expo-router";
 import FlashMessage from "react-native-flash-message";
-
-const Login = ({ navigation }) => {
+import AnimatedLoader from "react-native-animated-loader";
+const Login = () => {
   const [user, setUser] = useState({
     email: "",
     password: "",
   });
-
+  const { authLoading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -27,6 +27,11 @@ const Login = ({ navigation }) => {
   return (
     <>
       <View style={styles.container}>
+        <AnimatedLoader
+          overlayColor='rgba(255,255,255,0.75)'
+          speed={1}
+          visible={authLoading}
+        />
         <FlashMessage position='top' duration={3000} />
         <Text style={styles.subtitle}>Please enter your login credentials</Text>
         <View style={styles.inputContainer}>
