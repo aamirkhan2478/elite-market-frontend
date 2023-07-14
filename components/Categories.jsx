@@ -1,13 +1,23 @@
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React from "react";
 
-const Categories = ({ categories }) => {
+const Categories = ({ categories, getCategoryId }) => {
+  const buttonHandler = (id) => {
+    getCategoryId(id);
+  };
   return (
     <View style={styles.container}>
       <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
         {categories?.map((category) => (
           <View style={styles.itemContainer} key={category._id}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => buttonHandler(category._id)}>
               <Image
                 source={{
                   uri: category.image,
@@ -28,7 +38,7 @@ export default Categories;
 const styles = StyleSheet.create({
   container: {
     marginVertical: 6,
-    backgroundColor:"white"
+    backgroundColor: "white",
   },
   itemContainer: {
     marginVertical: 3,

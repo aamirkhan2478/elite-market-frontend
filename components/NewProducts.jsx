@@ -1,13 +1,17 @@
+import { useRouter } from "expo-router";
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 
 const NewProducts = ({ items }) => {
   const { products } = items;
+  const router = useRouter();
   return (
     <View style={styles.container}>
       {products?.map((product) => (
         <View style={styles.itemContainer} key={product._id}>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push(`product/${product._id}`)}
+          >
             <View style={styles.imageContainer}>
               <Image
                 source={{
@@ -16,11 +20,11 @@ const NewProducts = ({ items }) => {
                 style={styles.image}
               />
             </View>
+            <Text style={styles.name}>{product.name}</Text>
+            <View style={styles.priceContainer}>
+              <Text style={styles.price}>Rs. {product.price}</Text>
+            </View>
           </TouchableOpacity>
-          <Text style={styles.name}>{product.name}</Text>
-          <View style={styles.priceContainer}>
-            <Text style={styles.price}>Rs. {product.price}</Text>
-          </View>
         </View>
       ))}
     </View>
@@ -55,8 +59,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   image: {
-    width: 80,
-    height: 80,
+    width: "100%",
+    height: 100,
     alignSelf: "center",
     resizeMode: "cover",
   },
