@@ -17,6 +17,7 @@ import signup from "../assets/icons/signup.png";
 import login from "../assets/icons/login.png";
 import logout from "../assets/icons/shutdown.png";
 import DrawerIcon from "../components/DrawerIcon";
+import HeaderIcon from "../components/HeaderIcon";
 
 SplashScreen.preventAutoHideAsync();
 const Layout = () => {
@@ -39,6 +40,50 @@ const Layout = () => {
           headerTitleAlign: "center",
           drawerItemStyle: { display: user?.isAdmin ? "none" : "flex" },
           drawerIcon: () => <DrawerIcon src={home} />,
+        }}
+      />
+      <Drawer.Screen
+        name='products'
+        options={{
+          title: "Products",
+          headerTitleAlign: "center",
+          drawerItemStyle: {
+            display: user?.isAdmin ? "none" : "flex",
+          },
+          headerRight: () => token && <HeaderIcon src={addProduct} />,
+          drawerIcon: () => <DrawerIcon src={products} />,
+        }}
+      />
+      <Drawer.Screen
+        name='cart'
+        options={{
+          title: "Cart",
+          headerTitleAlign: "center",
+          drawerItemStyle: {
+            display: "none",
+          },
+        }}
+      />
+      <Drawer.Screen
+        name='product/[id]'
+        options={{
+          title: "Product",
+          headerTitleAlign: "center",
+          drawerItemStyle: {
+            display: "none",
+          },
+          headerRight: () => token && <HeaderIcon src={addProduct} />,
+        }}
+      />
+      <Drawer.Screen
+        name='categories'
+        options={{
+          title: "Categories",
+          headerTitleAlign: "center",
+          drawerItemStyle: {
+            display: user?.isAdmin ? "none" : "flex",
+          },
+          drawerIcon: () => <DrawerIcon src={categories} />,
         }}
       />
       <Drawer.Screen
@@ -93,7 +138,7 @@ const Layout = () => {
             display: user?.isAdmin && token ? "flex" : "none",
           },
           drawerIcon: () => <DrawerIcon src={dashboard} />,
-          headerRight: () => <ProfilePic src={token ? user?.pic : guestUser} />
+          headerRight: () => <ProfilePic src={token ? user?.pic : guestUser} />,
         }}
       />
       <Drawer.Screen

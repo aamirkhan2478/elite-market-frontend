@@ -16,11 +16,10 @@ const Home = () => {
     featuredProducts: featuredProd,
     products,
   } = useSelector((state) => state.product);
-
   useEffect(() => {
     const loadCategories = () => dispatch(showCategories());
     const featuredProducts = () => dispatch(featuredProduct());
-    const getProducts = () => dispatch(showProducts());
+    const getProducts = () => dispatch(showProducts(10, 1, "", ""));
 
     loadCategories();
     featuredProducts();

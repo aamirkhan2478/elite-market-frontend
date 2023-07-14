@@ -1,25 +1,39 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import React, { useState } from "react";
 import NewProducts from "../components/NewProducts";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Pagination from "../components/Pagination";
+import SearchBar from "../components/SearchBar";
+import { showProducts } from "../redux/Product/productSlice";
+import AnimatedLoader from "react-native-animated-loader";
 
 const products = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const { products } = useSelector((state) => state.product);
+  const { products, productLoading } = useSelector((state) => state.product);
+  const totalPages = Math.ceil(products.totalProducts / 10);
+  const dispatch = useDispatch();
   const handlePageChange = (page) => {
-    setCurrentPage(page);
-    // Perform any additional logic or data fetching here
+    dispatch(showProducts(10, page, "", ""));
   };
+
   return (
-    <ScrollView>
-      <NewProducts items={products} />
-      <Pagination
-        totalPages={5}
-        currentPage={currentPage}
-        onPageChange={handlePageChange}
-      />
-    </ScrollView>
+    <>
+      <SearchBar />
+      <ScrollView>
+        {productLoading ? (
+          <AnimatedLoader
+            overlayColor='rgba(255,255,255,0.75)'
+            speed={1}
+            visible={productLoading}
+          />
+        ) : (
+          <NewProducts items={products} />
+        )}
+        <Pagination
+          totalPages={totalPages}
+          currentPage={products.page}
+          onPageChange={handlePageChange}
+        />
+      </ScrollView>
+    </>
   );
 };
 
