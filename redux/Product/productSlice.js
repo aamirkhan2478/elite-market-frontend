@@ -103,27 +103,31 @@ export const setLoading = () => {
   };
 };
 
-export const showProducts = () => async (dispatch) => {
-  const config = {
-    headers: {
-      "Content-Type": "application/json",
-    },
+export const showProducts =
+  (limit, page, search, category) => async (dispatch) => {
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    dispatch(setLoading());
+    try {
+      const { data } = await axiosInstance.get(
+        `product/show-products?limit=${limit}&page=${page}&search=${search}&category=${category}`,
+        config
+      );
+      dispatch({
+        type: SHOW_PRODUCTS,
+        payload: data,
+      });
+    } catch (err) {
+      console.log(err.message);
+      dispatch({
+        type: SHOW_PRODUCTS_ERROR,
+        payload: { msg: err.response.statusText, status: err.response.status },
+      });
+    }
   };
-  dispatch(setLoading());
-  try {
-    const { data } = await axiosInstance.get("product/show-products", config);
-    dispatch({
-      type: SHOW_PRODUCTS,
-      payload: data,
-    });
-  } catch (err) {
-    console.log(err.message);
-    dispatch({
-      type: SHOW_PRODUCTS_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
-    });
-  }
-};
 
 export const showProduct = (id) => async (dispatch) => {
   const config = {
