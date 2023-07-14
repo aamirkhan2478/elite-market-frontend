@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Alert,
   Modal as M,
@@ -8,9 +8,20 @@ import {
   View,
 } from "react-native";
 
-const Modal = ({ modalVisible, setModalVisible, message, onPress }) => {
+const Modal = ({
+  modalVisible,
+  setModalVisible,
+  message,
+  onPress,
+  leftBtnText,
+  rightBtnText,
+  leftBtnColor,
+  rightBtnColor,
+}) => {
   return (
-    <View style={styles.centeredView}>
+    <View
+      style={[styles.centeredView, { display: modalVisible ? "flex" : "none" }]}
+    >
       <M
         animationType='slide'
         transparent={true}
@@ -25,16 +36,13 @@ const Modal = ({ modalVisible, setModalVisible, message, onPress }) => {
             <Text style={styles.modalText}>{message}</Text>
             <View style={styles.btnContainer}>
               <Pressable
-                style={styles.button("blue")}
+                style={styles.button(leftBtnColor)}
                 onPress={() => setModalVisible(!modalVisible)}
               >
-                <Text style={styles.textStyle}>No</Text>
+                <Text style={styles.textStyle}>{leftBtnText}</Text>
               </Pressable>
-              <Pressable
-                style={styles.button("red")}
-                onPress={onPress}
-              >
-                <Text style={styles.textStyle}>Yes</Text>
+              <Pressable style={styles.button(rightBtnColor)} onPress={onPress}>
+                <Text style={styles.textStyle}>{rightBtnText}</Text>
               </Pressable>
             </View>
           </View>

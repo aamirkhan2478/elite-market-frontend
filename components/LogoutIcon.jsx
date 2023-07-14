@@ -16,6 +16,7 @@ const LogoutIcon = ({ src }) => {
   };
   const confirmLogout = () => {
     dispatch(logoutUser(router));
+    setVisible(false);
   };
   return (
     <>
@@ -24,6 +25,10 @@ const LogoutIcon = ({ src }) => {
         setModalVisible={setVisible}
         message={message}
         onPress={confirmLogout}
+        leftBtnText={"No"}
+        rightBtnText={"yes"}
+        leftBtnColor={"blue"}
+        rightBtnColor={"red"}
       />
       <TouchableOpacity onPress={logoutHandler}>
         <Image source={src} style={styles.image} />
@@ -37,7 +42,7 @@ const styles = StyleSheet.create({
     height: 40,
     width: 40,
     marginRight: 10,
-    marginBottom:3
+    marginBottom: 3,
   },
 });
 export default LogoutIcon;

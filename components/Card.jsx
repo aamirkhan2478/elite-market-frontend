@@ -20,6 +20,7 @@ const Card = () => {
 
   const confirmDelete = () => {
     dispatch(deleteUser(user?._id, router));
+    setVisible(false);
   };
 
   return (
@@ -29,6 +30,10 @@ const Card = () => {
         setModalVisible={setVisible}
         message={message}
         onPress={confirmDelete}
+        leftBtnText={"No"}
+        rightBtnText={"yes"}
+        leftBtnColor={"blue"}
+        rightBtnColor={"red"}
       />
       <View style={styles.container}>
         <View style={styles.card}>
