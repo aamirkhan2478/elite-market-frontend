@@ -13,7 +13,7 @@ import minus from "../../assets/icons/minus.png";
 import { useDispatch, useSelector } from "react-redux";
 import { showProduct } from "../../redux/Product/productSlice";
 import { useRouter, useSearchParams } from "expo-router";
-import FlashMessage, { showMessage } from "react-native-flash-message";
+import FlashMessage from "react-native-flash-message";
 import { addCart, showCart } from "../../redux/Cart/cartSlice";
 import Modal from "../../components/Modal";
 
@@ -29,8 +29,12 @@ const Product = () => {
   const [totalAmount, setTotalAmount] = useState(
     quantity * (product?.price || 0)
   );
-  const [selectedColor, setSelectedColor] = useState("");
-  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState(
+    product && product.colors && product.colors[0] ? product.colors[0] : ""
+  );
+  const [selectedSize, setSelectedSize] = useState(
+    product && product.sizes && product.sizes[0] ? product.sizes[0] : ""
+  );
   const router = useRouter();
 
   const imagesHandler = (index) => {
@@ -81,7 +85,7 @@ const Product = () => {
 
   useEffect(() => {
     const getProduct = () => dispatch(showProduct(id));
-    const getCartData = () => dispatch(showCart());
+    const getCartData = () => dispatch(showCart(user._id));
     getProduct();
     getCartData();
   }, []);

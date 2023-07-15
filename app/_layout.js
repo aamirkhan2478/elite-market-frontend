@@ -114,6 +114,15 @@ const Layout = () => {
         }}
       />
       <Drawer.Screen
+        name='orders'
+        options={{
+          title: "Your Orders",
+          headerTitleAlign: "center",
+          drawerItemStyle: { display: token ? "flex" : "none" },
+          drawerIcon: () => <DrawerIcon src={signup} />,
+        }}
+      />
+      <Drawer.Screen
         name='update-user'
         options={{
           title: "Edit User",
