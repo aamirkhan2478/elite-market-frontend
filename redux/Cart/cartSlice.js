@@ -5,18 +5,16 @@ import axiosInstance from "../../Utils";
 const CART_LOADING = "CART_LOADING";
 const ADD_CART = "ADD_CART";
 const SHOW_CART = "SHOW_CART";
-const UPDATE_CART = "UPDATE_CART";
 const DELETE_CART = "DELETE_CART";
 const ADD_CART_ERROR = "ADD_CART_ERROR";
 const SHOW_CART_ERROR = "SHOW_CART_ERROR";
-const UPDATE_CART_ERROR = "UPDATE_CART_ERROR";
 const DELETE_CART_ERROR = "DELETE_CART_ERROR";
 
 //initialState
 const initialState = {
   cart: [],
-  cateLoading: false,
-  error: {},
+  cartLoading: false,
+  error: null,
 };
 
 //Reducers
@@ -26,31 +24,31 @@ const cartReducer = (state = initialState, action) => {
     case CART_LOADING:
       return {
         ...state,
-        cateLoading: true,
+        cartLoading: true,
       };
     case ADD_CART:
       return {
         ...state,
-        cateLoading: false,
+        cartLoading: false,
       };
     case DELETE_CART:
       return {
         ...state,
-        cateLoading: false,
-        cart: state.cart.filter((cart) => cart._id !== payload),
+        cartLoading: false,
+        cart: state?.cart?.filter((cart) => cart?._id !== payload),
       };
     case SHOW_CART:
       return {
         ...state,
         cart: payload,
-        cateLoading: false,
+        cartLoading: false,
       };
     case ADD_CART_ERROR:
     case DELETE_CART_ERROR:
     case SHOW_CART_ERROR:
       return {
         ...state,
-        cateLoading: false,
+        cartLoading: false,
         error: payload,
       };
     default:
@@ -65,7 +63,7 @@ export const setLoading = () => {
   };
 };
 
-export const showCart = () => async (dispatch, getState) => {
+export const showCart = (userId, limit, page) => async (dispatch, getState) => {
   const { token } = getState().auth;
   const config = {
     headers: {
@@ -75,7 +73,10 @@ export const showCart = () => async (dispatch, getState) => {
   };
   dispatch(setLoading());
   try {
-    const { data } = await axiosInstance.get("cart/show-cart-data", config);
+    const { data } = await axiosInstance.get(
+      `cart/user-cart/${userId}?limit=${limit}&page=${page}`,
+      config
+    );
     dispatch({
       type: SHOW_CART,
       payload: data,
@@ -90,7 +91,7 @@ export const showCart = () => async (dispatch, getState) => {
 };
 
 export const addCart = (values) => async (dispatch, getState) => {
-  const { token } = getState().auth;
+  const { token, user } = getState().auth;
   const config = {
     headers: {
       "Content-Type": "application/json",
@@ -108,7 +109,7 @@ export const addCart = (values) => async (dispatch, getState) => {
       type: "success",
       icon: "success",
     });
-    dispatch(showCart());
+    dispatch(showCart(user._id, 10, 1));
   } catch (err) {
     dispatch({
       type: ADD_CART_ERROR,
@@ -132,20 +133,16 @@ export const deleteCart = (id) => async (dispatch, getState) => {
   };
   dispatch(setLoading());
   try {
-    await axiosInstance.delete(`cart/delete-cart/${id}`, values, config);
+    await axiosInstance.delete(`cart/delete-cart/${id}`, config);
     dispatch({
       type: DELETE_CART,
+      payload: id,
     });
-    dispatch(showCart());
   } catch (err) {
+    console.log(err.message);
     dispatch({
       type: DELETE_CART_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
-    });
-    showMessage({
-      message: err.response.data.error,
-      type: "danger",
-      icon: "danger",
+      payload: { error: err.message },
     });
   }
 };
