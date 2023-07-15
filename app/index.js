@@ -7,6 +7,8 @@ import { featuredProduct, showProducts } from "../redux/Product/productSlice";
 import Categories from "../components/Categories";
 import FeaturedProducts from "../components/FeaturedProducts";
 import NewProducts from "../components/NewProducts";
+import { showCart } from "../redux/Cart/cartSlice";
+import { showOrders } from "../redux/Order/orderSlice";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -16,14 +18,19 @@ const Home = () => {
     featuredProducts: featuredProd,
     products,
   } = useSelector((state) => state.product);
+  const { user } = useSelector((state) => state.auth);
   useEffect(() => {
     const loadCategories = () => dispatch(showCategories());
     const featuredProducts = () => dispatch(featuredProduct());
     const getProducts = () => dispatch(showProducts(10, 1, "", ""));
+    const getCartData = () => dispatch(showCart(user._id));
+    const getOrders = () => dispatch(showOrders(user?._id, 10, 1));
 
+    getOrders();
     loadCategories();
     featuredProducts();
     getProducts();
+    getCartData();
   }, []);
 
   return (

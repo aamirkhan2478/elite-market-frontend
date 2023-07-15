@@ -5,15 +5,21 @@ import Pagination from "../components/Pagination";
 import SearchBar from "../components/SearchBar";
 import { showProducts } from "../redux/Product/productSlice";
 import AnimatedLoader from "react-native-animated-loader";
+import { useEffect } from "react";
+import { showCart } from "../redux/Cart/cartSlice";
 
 const products = () => {
   const { products, productLoading } = useSelector((state) => state.product);
+  const { user } = useSelector((state) => state.auth);
   const totalPages = Math.ceil(products.totalProducts / 10);
   const dispatch = useDispatch();
   const handlePageChange = (page) => {
     dispatch(showProducts(10, page, "", ""));
   };
-
+  useEffect(() => {
+    const getCartData = () => dispatch(showCart(user._id));
+    getCartData();
+  }, []);
   return (
     <>
       <SearchBar />

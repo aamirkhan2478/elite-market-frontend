@@ -17,7 +17,9 @@ import { useRouter } from "expo-router";
 
 const signup = () => {
   //These are all states
-  const [result, setResult] = useState("");
+  const [result, setResult] = useState(
+    "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"
+  );
   const [confirmPassword, setConfirmPassword] = useState("");
   const [user, setUser] = useState({
     name: "",

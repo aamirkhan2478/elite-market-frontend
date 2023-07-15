@@ -37,6 +37,7 @@ const Login = () => {
         <View style={styles.inputContainer}>
           <TextInput
             placeholder='Your Email'
+            keyboardType='email-address'
             style={styles.input}
             onChangeText={(value) => setUser({ ...user, email: value })}
             defaultValue={user.email}
