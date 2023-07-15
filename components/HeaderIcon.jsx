@@ -1,12 +1,14 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 
 const HeaderIcon = ({ src }) => {
   const router = useRouter();
-  const { cart } = useSelector((state) => state.cart);
-  const count = cart.length;
+  const { cart: cartData } = useSelector((state) => state.cart);
+  const { cart } = cartData;
+  const count = cart?.length;
+
   return (
     <TouchableOpacity onPress={() => router.push("cart")}>
       <Image source={src} style={styles.image} />

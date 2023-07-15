@@ -17,6 +17,8 @@ const Modal = ({
   rightBtnText,
   leftBtnColor,
   rightBtnColor,
+  displayLeftButton,
+  displayRightButton
 }) => {
   return (
     <View
@@ -36,12 +38,15 @@ const Modal = ({
             <Text style={styles.modalText}>{message}</Text>
             <View style={styles.btnContainer}>
               <Pressable
-                style={styles.button(leftBtnColor)}
+                style={[styles.button(leftBtnColor), { display: displayLeftButton }]}
                 onPress={() => setModalVisible(!modalVisible)}
               >
                 <Text style={styles.textStyle}>{leftBtnText}</Text>
               </Pressable>
-              <Pressable style={styles.button(rightBtnColor)} onPress={onPress}>
+              <Pressable
+                style={[styles.button(rightBtnColor), { display: displayRightButton }]}
+                onPress={onPress}
+              >
                 <Text style={styles.textStyle}>{rightBtnText}</Text>
               </Pressable>
             </View>

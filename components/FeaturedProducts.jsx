@@ -1,4 +1,11 @@
-import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Dimensions,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React from "react";
 import Swiper from "react-native-swiper";
 import { useRouter } from "expo-router";
@@ -15,11 +22,11 @@ const FeaturedProducts = ({ featuredProducts }) => {
         dot={<View></View>}
         activeDot={<View></View>}
       >
-        {featuredProducts?.map((featured) => (
+        {featuredProducts?.map((featured, index) => (
           <>
             <TouchableOpacity
               style={styles.slide}
-              key={featured._id}
+              key={index}
               onPress={() => router.push(`product/${featured._id}`)}
             >
               <Image

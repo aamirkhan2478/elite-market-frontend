@@ -26,7 +26,7 @@ const LogoutIcon = ({ src }) => {
         message={message}
         onPress={confirmLogout}
         leftBtnText={"No"}
-        rightBtnText={"yes"}
+        rightBtnText={"Yes"}
         leftBtnColor={"blue"}
         rightBtnColor={"red"}
       />
