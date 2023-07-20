@@ -10,17 +10,24 @@ import {
   ScrollView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import FlashMessage, { showMessage } from "react-native-flash-message";
-import { useDispatch } from "react-redux";
+
+import { useDispatch, useSelector } from "react-redux";
 import { signupUser } from "../redux/Auth/authSlice";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
+
+import LoadingButton from "../components/LoadingButton";
+import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
 
 const signup = () => {
   //These are all states
-  const [result, setResult] = useState(
-    "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"
-  );
+  const [result, setResult] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const {
+    authLoading,
+    user: userData,
+    token,
+  } = useSelector((state) => state.auth);
   const [user, setUser] = useState({
     name: "",
     email: "",
@@ -34,6 +41,7 @@ const signup = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   //This function is used for pick a image from gallery
+
   const PickImage = async () => {
     if (Platform.OS !== "web") {
       const { status } =
@@ -59,7 +67,7 @@ const signup = () => {
     }
   };
 
-  const buttonHandler = async () => {
+  const buttonHandler = () => {
     if (user.password !== confirmPassword) {
       showMessage({
         message: "Your password is not match",
@@ -75,93 +83,141 @@ const signup = () => {
     dispatch(signupUser(data, router));
   };
 
+  useFocusEffect(() => {
+    if (token && userData?.isAdmin === true) {
+      router.push("dashboard");
+    } else if (token && userData?.isAdmin === false) {
+      router.push("home");
+    }
+  });
+
+  const toastConfig = {
+    success: (props) => (
+      <BaseToast
+        {...props}
+        style={{ backgroundColor: "green" }}
+        contentContainerStyle={{ paddingHorizontal: 15 }}
+        text1Style={{
+          fontSize: 17,
+          color: "white",
+        }}
+      />
+    ),
+    error: (props) => (
+      <ErrorToast
+        {...props}
+        style={{ backgroundColor: "red" }}
+        text1Style={{
+          fontSize: 17,
+          color: "white",
+        }}
+        text2Style={{
+          fontSize: 15,
+          color: "white",
+        }}
+      />
+    ),
+  };
   return (
-    <View style={styles.container}>
-      <FlashMessage position='top' duration={3000} />
-      <ScrollView
-        style={styles.inputContainer}
-        contentContainerStyle={{ display: "flex", alignItems: "center" }}
-      >
-        <TouchableOpacity
-          onPress={PickImage}
-          style={{
-            borderRadius: 50,
-            height: 100,
-            width: 100,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            borderStyle: "dotted",
-            borderWidth: 4,
-            borderColor: "#20232a",
-          }}
+    <>
+      <View style={styles.container}>
+        <ScrollView
+          style={styles.inputContainer}
+          contentContainerStyle={{ display: "flex", alignItems: "center" }}
         >
-          {result ? (
-            <Image
-              source={{
-                uri: result,
-              }}
-              style={styles.image}
-            />
-          ) : (
-            <Text>Upload Image</Text>
-          )}
-        </TouchableOpacity>
-        <TextInput
-          placeholder='Name'
-          style={styles.input}
-          onChangeText={(value) => setUser({ ...user, name: value })}
-        />
-        <TextInput
-          placeholder='Email'
-          keyboardType='email-address'
-          style={styles.input}
-          onChangeText={(value) => setUser({ ...user, email: value })}
-        />
-        <TextInput
-          placeholder='Address'
-          style={styles.input}
-          onChangeText={(value) => setUser({ ...user, shippingAddress: value })}
-        />
-        <TextInput
-          placeholder='City'
-          style={styles.input}
-          onChangeText={(value) => setUser({ ...user, city: value })}
-        />
-        <TextInput
-          placeholder='Zip Code'
-          style={styles.input}
-          onChangeText={(value) => setUser({ ...user, zip: value })}
-        />
-        <TextInput
-          placeholder='Mobile'
-          keyboardType='number-pad'
-          style={styles.input}
-          onChangeText={(value) => setUser({ ...user, phone: value })}
-        />
-        <TextInput
-          placeholder='Password'
-          style={styles.input}
-          onChangeText={(value) => setUser({ ...user, password: value })}
-          secureTextEntry
-        />
-        <TextInput
-          placeholder='Confirm Password'
-          style={styles.input}
-          onChangeText={(value) => setConfirmPassword(value)}
-          secureTextEntry
-        />
-        <TouchableOpacity style={styles.button} onPress={buttonHandler}>
-          <Text style={styles.buttonText}>Signup</Text>
-        </TouchableOpacity>
-        <View style={styles.footerContainer}>
-          <Text style={styles.footerText}>Already have an Account ?</Text>
-          <Text style={styles.footerLink} onPress={() => router.push("login")}>
-            Login
-          </Text>
-        </View>
-      </ScrollView>
-    </View>
+          <TouchableOpacity
+            onPress={PickImage}
+            style={{
+              borderRadius: 50,
+              height: 100,
+              width: 100,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              borderStyle: "dotted",
+              borderWidth: 4,
+              borderColor: "#20232a",
+            }}
+          >
+            {result ? (
+              <Image
+                source={{
+                  uri: result,
+                }}
+                style={styles.image}
+              />
+            ) : (
+              <Text>Upload Image</Text>
+            )}
+          </TouchableOpacity>
+          <TextInput
+            placeholder='Name'
+            style={styles.input}
+            onChangeText={(value) => setUser({ ...user, name: value })}
+          />
+          <TextInput
+            placeholder='Email'
+            keyboardType='email-address'
+            style={styles.input}
+            onChangeText={(value) => setUser({ ...user, email: value })}
+          />
+          <TextInput
+            placeholder='Address'
+            style={styles.input}
+            onChangeText={(value) =>
+              setUser({ ...user, shippingAddress: value })
+            }
+          />
+          <TextInput
+            placeholder='City'
+            style={styles.input}
+            onChangeText={(value) => setUser({ ...user, city: value })}
+          />
+          <TextInput
+            placeholder='Zip Code'
+            style={styles.input}
+            onChangeText={(value) => setUser({ ...user, zip: value })}
+          />
+          <TextInput
+            placeholder='Mobile'
+            keyboardType='number-pad'
+            style={styles.input}
+            onChangeText={(value) => setUser({ ...user, phone: value })}
+          />
+          <TextInput
+            placeholder='Password'
+            style={styles.input}
+            onChangeText={(value) => setUser({ ...user, password: value })}
+            secureTextEntry
+          />
+          <TextInput
+            placeholder='Confirm Password'
+            style={styles.input}
+            onChangeText={(value) => setConfirmPassword(value)}
+            secureTextEntry
+          />
+          <LoadingButton
+            btnStyles={styles.button}
+            indicatorColor={"white"}
+            isLoading={authLoading}
+            onPress={buttonHandler}
+            textStyles={styles.buttonText}
+          >
+            SignUp
+          </LoadingButton>
+          <View style={styles.footerContainer}>
+            <Text style={styles.footerText}>Already have an Account ?</Text>
+            <Text
+              style={styles.footerLink}
+              onPress={() => router.push("login")}
+            >
+              Login
+            </Text>
+          </View>
+        </ScrollView>
+        <Toast config={toastConfig} />
+      </View>
+    </>
   );
 };
 

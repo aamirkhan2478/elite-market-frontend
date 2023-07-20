@@ -10,13 +10,14 @@ import {
   ScrollView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import FlashMessage, { showMessage } from "react-native-flash-message";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUser } from "../redux/Auth/authSlice";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
+import LoadingButton from "../components/LoadingButton";
+import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
 
 const UpdateUser = () => {
-  const { user } = useSelector((state) => state.auth);
+  const { user, token, authLoading } = useSelector((state) => state.auth);
   //These are all states
   const [result, setResult] = useState(user?.pic);
   const [userData, setUserData] = useState({
@@ -30,6 +31,7 @@ const UpdateUser = () => {
 
   const dispatch = useDispatch();
   //This function is used for pick a image from gallery
+
   const PickImage = async () => {
     if (Platform.OS !== "web") {
       const { status } =
@@ -56,7 +58,7 @@ const UpdateUser = () => {
   };
 
   const router = useRouter();
-  const buttonHandler = async (e) => {
+  const buttonHandler = () => {
     const data = {
       ...userData,
       pic: result,
@@ -76,9 +78,46 @@ const UpdateUser = () => {
       phone: user?.phone,
     });
   }, []);
+
+  useFocusEffect(() => {
+    if (
+      (token && user?.isAdmin === true) ||
+      (token && user?.isAdmin === false)
+    ) {
+      router.push("update-user");
+    } else if (!token) {
+      router.push("home");
+    }
+  });
+  const createConfig = {
+    success: (props) => (
+      <BaseToast
+        {...props}
+        style={{ backgroundColor: "green" }}
+        contentContainerStyle={{ paddingHorizontal: 15 }}
+        text1Style={{
+          fontSize: 17,
+          color: "white",
+        }}
+      />
+    ),
+    error: (props) => (
+      <ErrorToast
+        {...props}
+        style={{ backgroundColor: "red" }}
+        text1Style={{
+          fontSize: 17,
+          color: "white",
+        }}
+        text2Style={{
+          fontSize: 15,
+          color: "white",
+        }}
+      />
+    ),
+  };
   return (
     <View style={styles.container}>
-      <FlashMessage position='top' duration={3000} />
       <ScrollView
         style={styles.inputContainer}
         contentContainerStyle={{ display: "flex", alignItems: "center" }}
@@ -148,10 +187,17 @@ const UpdateUser = () => {
           onChangeText={(value) => setUserData({ ...userData, phone: value })}
           defaultValue={user?.phone}
         />
-        <TouchableOpacity style={styles.button} onPress={buttonHandler}>
-          <Text style={styles.buttonText}>Edit User</Text>
-        </TouchableOpacity>
+        <LoadingButton
+          btnStyles={styles.button}
+          indicatorColor={"white"}
+          isLoading={authLoading}
+          onPress={buttonHandler}
+          textStyles={styles.buttonText}
+        >
+          Edit User
+        </LoadingButton>
       </ScrollView>
+      <Toast config={createConfig} />
     </View>
   );
 };

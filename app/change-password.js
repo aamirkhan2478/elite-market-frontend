@@ -1,17 +1,14 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-} from "react-native";
+import { View, StyleSheet, TextInput } from "react-native";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import FlashMessage, { showMessage } from "react-native-flash-message";
+
 import { changePassword } from "../redux/Auth/authSlice";
+import { useFocusEffect } from "expo-router";
+import LoadingButton from "../components/LoadingButton";
+import Toast from "react-native-toast-message";
 
 const ChangePassword = () => {
-  const { user } = useSelector((state) => state.auth);
+  const { user, token, authLoading } = useSelector((state) => state.auth);
   //These are all states
   const [data, setData] = useState({
     password: "",
@@ -22,11 +19,12 @@ const ChangePassword = () => {
 
   const buttonHandler = async () => {
     if (data.password !== confirmPassword) {
-      return showMessage({
-        message: "Your password is not match",
-        type: "danger",
-        icon: "danger",
+      Toast.show({
+        text1: "Password is not match",
+        type: "error",
+        visibilityTime: 2500,
       });
+      return;
     }
 
     dispatch(changePassword(data, user?._id));
@@ -34,6 +32,14 @@ const ChangePassword = () => {
     setData({ password: "" });
     setConfirmPassword("");
   };
+
+  useFocusEffect(() => {
+    if (token && user?.isAdmin === true) {
+      router.push("dashboard");
+    } else if (!token) {
+      router.push("home");
+    }
+  });
   return (
     <View style={styles.container}>
       <FlashMessage position='top' duration={3000} />
@@ -49,9 +55,16 @@ const ChangePassword = () => {
         onChangeText={(value) => setConfirmPassword(value)}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.button} onPress={buttonHandler}>
-        <Text style={styles.buttonText}>Change Password</Text>
-      </TouchableOpacity>
+      <LoadingButton
+        btnStyles={styles.button}
+        indicatorColor={"white"}
+        isLoading={authLoading}
+        onPress={buttonHandler}
+        textStyles={styles.buttonText}
+      >
+        Change Password
+      </LoadingButton>
+      <Toast />
     </View>
   );
 };

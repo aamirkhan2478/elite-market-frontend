@@ -1,22 +1,22 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { View, Text, TextInput, StyleSheet } from "react-native";
 import { loginUser } from "../redux/Auth/authSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "expo-router";
-import FlashMessage from "react-native-flash-message";
-import AnimatedLoader from "react-native-animated-loader";
+import { useFocusEffect, useRouter } from "expo-router";
+
+import LoadingButton from "../components/LoadingButton";
+import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
+
 const Login = () => {
   const [user, setUser] = useState({
     email: "",
     password: "",
   });
-  const { authLoading } = useSelector((state) => state.auth);
+  const {
+    authLoading,
+    user: userData,
+    token,
+  } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -24,15 +24,44 @@ const Login = () => {
     dispatch(loginUser(user, router));
   };
 
+  useFocusEffect(() => {
+    if (token && userData?.isAdmin === true) {
+      router.push("dashboard");
+    } else if (token && userData?.isAdmin === false) {
+      router.push("home");
+    }
+  });
+
+  const createConfig = {
+    success: (props) => (
+      <BaseToast
+        {...props}
+        style={{ backgroundColor: "green" }}
+        contentContainerStyle={{ paddingHorizontal: 15 }}
+        text1Style={{
+          fontSize: 17,
+          color: "white",
+        }}
+      />
+    ),
+    error: (props) => (
+      <ErrorToast
+        {...props}
+        style={{ backgroundColor: "red" }}
+        text1Style={{
+          fontSize: 17,
+          color: "white",
+        }}
+        text2Style={{
+          fontSize: 15,
+          color: "white",
+        }}
+      />
+    ),
+  };
   return (
     <>
       <View style={styles.container}>
-        <AnimatedLoader
-          overlayColor='rgba(255,255,255,0.75)'
-          speed={1}
-          visible={authLoading}
-        />
-        <FlashMessage position='top' duration={3000} />
         <Text style={styles.subtitle}>Please enter your login credentials</Text>
         <View style={styles.inputContainer}>
           <TextInput
@@ -49,9 +78,16 @@ const Login = () => {
             defaultValue={user.password}
             secureTextEntry
           />
-          <TouchableOpacity style={styles.button} onPress={clickHandler}>
-            <Text style={styles.buttonText}>Login</Text>
-          </TouchableOpacity>
+          <LoadingButton
+            btnStyles={styles.button}
+            indicatorColor={"white"}
+            isLoading={authLoading}
+            onPress={clickHandler}
+            textStyles={styles.buttonText}
+          >
+            Login
+          </LoadingButton>
+
           <View style={styles.footerContainer}>
             <Text style={styles.footerText}>Don't have an Account ?</Text>
             <Text
@@ -62,6 +98,7 @@ const Login = () => {
             </Text>
           </View>
         </View>
+        <Toast config={createConfig} />
       </View>
     </>
   );
