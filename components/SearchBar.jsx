@@ -6,9 +6,9 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import search from "../assets/icons/search.png";
 import { useDispatch } from "react-redux";
 import { showProducts } from "../redux/Product/productSlice";
+import { icons } from "../constants";
 const SearchBar = () => {
   const [query, setQuery] = useState("");
   const dispatch = useDispatch();
@@ -24,7 +24,7 @@ const SearchBar = () => {
           onChangeText={(value) => setQuery(value)}
         />
         <TouchableOpacity style={styles.button} onPress={buttonHandler}>
-          <Image source={search} style={styles.icon} />
+          <Image source={icons.search} style={styles.icon} />
         </TouchableOpacity>
       </View>
     </View>
