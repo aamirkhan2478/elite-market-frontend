@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component } from "react";
 import {
   Alert,
   Modal as M,
@@ -6,6 +6,7 @@ import {
   Text,
   Pressable,
   View,
+  TouchableOpacity,
 } from "react-native";
 
 const Modal = ({
@@ -18,7 +19,8 @@ const Modal = ({
   leftBtnColor,
   rightBtnColor,
   displayLeftButton,
-  displayRightButton
+  displayRightButton,
+  element,
 }) => {
   return (
     <View
@@ -32,23 +34,31 @@ const Modal = ({
           Alert.alert("Modal has been closed.");
           setModalVisible(!modalVisible);
         }}
+        style={{ backgroundColor: "grey" }}
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
+            {element}
             <Text style={styles.modalText}>{message}</Text>
             <View style={styles.btnContainer}>
-              <Pressable
-                style={[styles.button(leftBtnColor), { display: displayLeftButton }]}
+              <TouchableOpacity
+                style={[
+                  styles.button(leftBtnColor),
+                  { display: displayLeftButton },
+                ]}
                 onPress={() => setModalVisible(!modalVisible)}
               >
                 <Text style={styles.textStyle}>{leftBtnText}</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.button(rightBtnColor), { display: displayRightButton }]}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.button(rightBtnColor),
+                  { display: displayRightButton },
+                ]}
                 onPress={onPress}
               >
                 <Text style={styles.textStyle}>{rightBtnText}</Text>
-              </Pressable>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
