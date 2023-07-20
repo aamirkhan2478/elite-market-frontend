@@ -8,9 +8,9 @@ const NewProducts = ({ items }) => {
   return (
     <View style={styles.container}>
       {products?.map((product) => (
-        <View style={styles.itemContainer} key={product._id}>
+        <View style={styles.itemContainer} key={product?._id}>
           <TouchableOpacity
-            onPress={() => router.push(`product/${product._id}`)}
+            onPress={() => router.push(`product/${product?._id}`)}
           >
             <View style={styles.imageContainer}>
               <Image

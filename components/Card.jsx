@@ -3,10 +3,10 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "expo-router";
 import Modal from "./Modal";
-import { deleteUser, loadUser } from "../redux/Auth/authSlice";
+import { deleteUser } from "../redux/Auth/authSlice";
 
 const Card = () => {
-  const { user, refresh } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -15,7 +15,7 @@ const Card = () => {
 
   const deleteHandler = () => {
     setVisible(true);
-    setMessage("Are you sure you want to delete account?");
+    setMessage("Are you sure you want to delete your account?");
   };
 
   const confirmDelete = () => {
@@ -30,10 +30,10 @@ const Card = () => {
         setModalVisible={setVisible}
         message={message}
         onPress={confirmDelete}
-        leftBtnText={"No"}
-        rightBtnText={"yes"}
-        leftBtnColor={"blue"}
-        rightBtnColor={"red"}
+        leftBtnText='No'
+        rightBtnText='Yes'
+        leftBtnColor='#3498db'
+        rightBtnColor='#e74c3c'
       />
       <View style={styles.container}>
         <View style={styles.card}>
@@ -56,7 +56,7 @@ const Card = () => {
           <View style={styles.divider} />
           <View style={styles.buttonContainer}>
             <TouchableOpacity
-              style={styles.button("skyblue")}
+              style={styles.button("blue")}
               onPress={() => router.push(`update-user`)}
             >
               <Text style={styles.buttonText}>Edit Profile</Text>
@@ -81,6 +81,12 @@ const Card = () => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8f8f8",
+  },
   card: {
     backgroundColor: "#fff",
     borderRadius: 8,
@@ -91,62 +97,56 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
     marginBottom: 16,
-    display: "flex",
     alignItems: "center",
   },
   heading: {
     fontSize: 18,
     fontWeight: "bold",
     borderBottomWidth: 1,
+    paddingBottom: 8,
+    marginBottom: 8,
+    color: "#333",
   },
   textContainer: {
     marginTop: 10,
     marginBottom: 10,
-    display: "flex",
     alignItems: "flex-start",
     width: 250,
-  },
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100%",
   },
   image: {
     width: 200,
     height: 200,
     marginBottom: 12,
-    borderRadius: 50,
+    borderRadius: 100,
   },
   divider: {
     borderBottomWidth: 1,
     width: 100,
     marginBottom: 10,
+    borderColor: "#ccc",
   },
   buttonContainer: {
-    display: "flex",
     width: 200,
+    marginTop: 16,
   },
   button: (color) => ({
     width: 150,
     backgroundColor: color,
-    borderColor: color,
-    borderWidth: 1,
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    marginVertical: 2,
-    alignSelf: "center",
+    marginVertical: 8,
     justifyContent: "center",
     alignItems: "center",
   }),
   buttonText: {
-    color: "white",
+    color: "#fff",
     fontSize: 14,
     fontWeight: "bold",
   },
   paragraph: {
     fontSize: 15,
+    color: "#333",
   },
 });
 

@@ -16,7 +16,7 @@ const Categories = ({ categories, getCategoryId }) => {
     <View style={styles.container}>
       <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
         {categories?.map((category) => (
-          <View style={styles.itemContainer} key={category._id}>
+          <View style={styles.itemContainer} key={category?._id}>
             <TouchableOpacity onPress={() => buttonHandler(category._id)}>
               <Image
                 source={{
