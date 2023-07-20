@@ -47,10 +47,9 @@ const signup = () => {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
-        showMessage({
-          message: "Permission Denied!",
-          type: "danger",
-          icon: "danger",
+        Toast.show({
+          text1: "Permission Denied!",
+          type: "error",
         });
       }
     }
@@ -69,10 +68,9 @@ const signup = () => {
 
   const buttonHandler = () => {
     if (user.password !== confirmPassword) {
-      showMessage({
-        message: "Your password is not match",
-        type: "danger",
-        icon: "danger",
+      Toast.show({
+        text1: "Your password is not match",
+        type: "error",
       });
     }
 

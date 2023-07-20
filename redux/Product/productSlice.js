@@ -303,10 +303,10 @@ export const updateProduct =
       router.push("dashboard/show-products");
       dispatch(showProducts());
     } catch (err) {
-      showMessage({
-        message: err.response.data.error,
-        type: "danger",
-        icon: "danger",
+      Toast.show({
+        text1: err.response.data.error,
+        type: "error",
+        visibilityTime: 2500,
       });
       dispatch({
         type: UPDATE_PRODUCT_ERROR,
@@ -333,10 +333,10 @@ export const imageGallery = (values, id) => async (dispatch, getState) => {
       type: IMAGE_GALLERY,
     });
     dispatch(showProducts());
-    showMessage({
-      message: "Success",
-      icon: "success",
+    Toast.show({
+      text1: "All images uploaded successfully",
       type: "success",
+      visibilityTime: 2500,
     });
   } catch (err) {
     Toast.show({

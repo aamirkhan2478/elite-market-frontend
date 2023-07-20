@@ -255,10 +255,10 @@ export const updateStatus =
       });
       router.push("dashboard/orders");
     } catch (err) {
-      showMessage({
-        message: err.response.data.error,
-        type: "danger",
-        icon: "danger",
+      Toast.show({
+        text1: err.response.data.error,
+        type: "error",
+        visibilityTime: 2500,
       });
       console.log(err.message);
       dispatch({
@@ -284,10 +284,10 @@ export const addOrder = (values, router) => async (dispatch, getState) => {
     });
     router.push("orders");
     dispatch(specificUserOrders(user?._id, 10, 1));
-    showMessage({
-      message: "Your product has been added to your orders",
-      type: "success",
-      icon: "success",
+    Toast.show({
+      text1: err.response.data.error,
+      type: "error",
+      visibilityTime: 2500,
     });
   } catch (err) {
     Toast.show({

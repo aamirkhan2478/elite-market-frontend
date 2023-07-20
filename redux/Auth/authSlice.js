@@ -224,8 +224,8 @@ export const changePassword = (values, id) => async (dispatch, getState) => {
       payload: data,
     });
     Toast.show({
-      text1: err.response.data.error,
-      type: "error",
+      text1: data.message,
+      type: "success",
       visibilityTime: 2500,
     });
     dispatch(loadUser());

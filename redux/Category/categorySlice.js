@@ -178,11 +178,11 @@ export const updateCategory =
       router.push("dashboard/show-categories");
       dispatch(showCategories());
     } catch (err) {
-      showMessage({
-        message: err.response.data.error,
-        type: "danger",
-        icon: "danger",
-      });
+      Toast.show({
+        text1:err.response.data.error,
+        type:"error",
+      })
+      
       dispatch({
         type: UPDATE_CATEGORY_ERROR,
         payload: { msg: err.message },

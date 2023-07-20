@@ -33,11 +33,10 @@ const AddCategory = () => {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
-        showMessage({
-          message: "Permission Denied!",
-          type: "danger",
-          icon: "danger",
-        });
+        Toast.show({
+          text1:"Permission Denied!",
+          type:"error",
+        })
       }
     }
 
