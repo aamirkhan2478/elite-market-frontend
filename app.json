@@ -5,6 +5,17 @@
       "bundler": "metro"
     },
     "name": "frontend",
-    "slug": "frontend"
+    "slug": "frontend",
+    "extra": {
+      "eas": {
+        "projectId": "1f2d47df-793c-4675-a0ea-a2fa48f3975a"
+      }
+    },
+    "android": {
+      "package": "com.aamir18.frontend"
+    },
+    "ios": {
+      "bundleIdentifier": "com.aamir18.frontend"
+    }
   }
 }
