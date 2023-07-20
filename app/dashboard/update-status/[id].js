@@ -32,9 +32,13 @@ const UpdateStatus = () => {
     { id: 14, status: "Awaiting Fulfillment" },
     { id: 15, status: "Failed" },
   ];
-  setTimeout(() => {
-    setRefresh(true);
-  }, 1000);
+
+  useFocusEffect(() => {
+    setTimeout(() => {
+      setRefresh(true);
+    }, 1000);
+  });
+
   useEffect(() => {
     const getOrder = () => {
       dispatch(showOrder(id));
@@ -46,7 +50,7 @@ const UpdateStatus = () => {
   useFocusEffect(() => {
     if (!token || user?.isAdmin === false) {
       router.push("home");
-    } 
+    }
   });
   const handleOptionSelect = (option) => {
     setStatus(option);
@@ -88,7 +92,6 @@ const UpdateStatus = () => {
   };
   return (
     <SafeAreaView>
-     
       <ScrollView style={{ paddingVertical: 20 }}>
         <Text style={styles.heading}>Status</Text>
         <View style={styles.container}>
@@ -120,7 +123,7 @@ const UpdateStatus = () => {
           </LoadingButton>
         </View>
       </ScrollView>
-      <Toast config={createConfig}/>
+      <Toast config={createConfig} />
     </SafeAreaView>
   );
 };

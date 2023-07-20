@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { changePassword } from "../redux/Auth/authSlice";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import LoadingButton from "../components/LoadingButton";
 import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
 
@@ -17,6 +17,7 @@ const ChangePassword = () => {
 
   const dispatch = useDispatch();
 
+  const router = useRouter();
   const buttonHandler = async () => {
     if (data.password !== confirmPassword) {
       Toast.show({
@@ -34,11 +35,9 @@ const ChangePassword = () => {
   };
 
   useFocusEffect(() => {
-    if (token && user?.isAdmin === true) {
-      router.push("dashboard");
-    } else if (!token) {
+    if (!token && user?.isAdmin === false) {
       router.push("home");
-    }
+    } 
   });
 
   const createConfig = {

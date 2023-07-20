@@ -29,19 +29,23 @@ const Order = () => {
     user,
   } = order;
 
-  setTimeout(() => {
-    setRefresh(true);
-  }, 1000);
+  useFocusEffect(() => {
+    setTimeout(() => {
+      setRefresh(true);
+    }, 1000);
+  });
+
   useEffect(() => {
     const getOrder = () => dispatch(showOrder(id));
     getOrder();
-  }, [refresh === true]);
+  }, [refresh]);
 
   useFocusEffect(() => {
     if (!token || userAdmin?.isAdmin === false) {
       router.push("home");
-    } 
+    }
   });
+  
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.heading}>Order Details</Text>

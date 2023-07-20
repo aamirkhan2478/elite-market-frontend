@@ -20,7 +20,6 @@ import {
 } from "../../../redux/Category/categorySlice";
 import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
 
-
 const AddCategory = () => {
   const { cateLoading, category } = useSelector((state) => state.category);
   const { user, token } = useSelector((state) => state.auth);
@@ -28,6 +27,7 @@ const AddCategory = () => {
     name: "",
     image: "",
   });
+  const [refresh, setRefresh] = useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
   const { id } = useSearchParams();
@@ -39,9 +39,9 @@ const AddCategory = () => {
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
         Toast.show({
-          text1:"Permission Denied!",
-          type:"error",
-        })
+          text1: "Permission Denied!",
+          type: "error",
+        });
       }
     }
 
@@ -60,12 +60,17 @@ const AddCategory = () => {
   useEffect(() => {
     dispatch(showCategory(id));
     setValues({ name: category?.name, image: category?.image });
-  }, []);
+  }, [refresh]);
 
+  useFocusEffect(() => {
+    setTimeout(() => {
+      setRefresh(true);
+    }, 1000);
+  });
   useFocusEffect(() => {
     if (!token || user?.isAdmin === false) {
       router.push("home");
-    } 
+    }
   });
   const buttonHandler = () => dispatch(updateCategory(values, id, router));
 
@@ -103,7 +108,7 @@ const AddCategory = () => {
         <View style={styles.imageContainer}>
           <View style={styles.image}>
             {values.image && (
-              <Image source={{ uri: values.image }} style={styles.showImage} />
+              <Image source={{ uri: values?.image }} style={styles.showImage} />
             )}
             <CameraIcon src={camera} onPress={PickImage} />
           </View>
@@ -114,7 +119,7 @@ const AddCategory = () => {
             style={styles.input}
             placeholder='Category Name'
             onChangeText={(text) => setValues({ ...values, name: text })}
-            defaultValue={values.name}
+            defaultValue={values?.name}
           />
         </View>
         <View style={styles.buttonContainer}>
@@ -129,7 +134,7 @@ const AddCategory = () => {
           </LoadingButton>
         </View>
       </ScrollView>
-      <Toast config={createConfig}/>
+      <Toast config={createConfig} />
     </SafeAreaView>
   );
 };
