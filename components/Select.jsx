@@ -16,7 +16,7 @@ const SelectDropdown = ({ options, setValues, values }) => {
         onValueChange={(itemValue) => handleOptionSelect(itemValue)}
       >
         <Picker.Item label='Select an option' value='' />
-        {options?.map((option, index) => (
+        {options?.map((option) => (
           <Picker.Item
             key={option._id}
             label={option.name}

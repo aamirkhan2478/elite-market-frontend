@@ -1,5 +1,13 @@
-import React, { useEffect } from "react";
-import { View, Text, SafeAreaView, StyleSheet, Image } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  StyleSheet,
+  Image,
+  ScrollView,
+  RefreshControl,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import ordersIcon from "../../assets/icons/orders.png";
 import productsIcon from "../../assets/icons/products.png";
@@ -10,26 +18,30 @@ import { useFocusEffect } from "expo-router/src/useFocusEffect";
 import { useRouter } from "expo-router";
 
 const Dashboard = () => {
-  const { user, token, authLoading } = useSelector((state) => state.auth);
-  const { productCount: products, productLoading } = useSelector(
-    (state) => state.product
+  const { user, token } = useSelector((state) => state.auth);
+  const { productCount: products } = useSelector((state) => state.product);
+  const { totalSales: sales, totalOrders: order } = useSelector(
+    (state) => state.order
   );
-  const {
-    totalSales: sales,
-    totalOrders: order,
-    orderLoading,
-  } = useSelector((state) => state.order);
+  const [refresh, setRefresh] = useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
 
-  useEffect(() => {
-    const getAllCounts = () => {
-      dispatch(productCount());
-      dispatch(totalSales());
-      dispatch(totalOrders());
-    };
+  const getAllCounts = () => {
+    dispatch(productCount());
+    dispatch(totalSales());
+    dispatch(totalOrders());
+    setRefresh(false);
+  };
+
+  const handleRefresh = () => {
+    setRefresh(true);
     getAllCounts();
-  }, []);
+  };
+
+  useEffect(() => {
+    getAllCounts();
+  }, [refresh]);
 
   useFocusEffect(() => {
     if (!token || user?.isAdmin === false) {
@@ -39,44 +51,50 @@ const Dashboard = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.subtitle}>Personal Info</Text>
-      <View style={styles.infoContainer}>
-        <Image source={{ uri: user?.pic }} style={styles.profilePic} />
-        <View style={styles.infoContent}>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoText}>Name:</Text>
-            <Text style={styles.infoValue}>{user?.name}</Text>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refresh} onRefresh={handleRefresh} />
+        }
+      >
+        <Text style={styles.subtitle}>Personal Info</Text>
+        <View style={styles.infoContainer}>
+          <Image source={{ uri: user?.pic }} style={styles.profilePic} />
+          <View style={styles.infoContent}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoText}>Name:</Text>
+              <Text style={styles.infoValue}>{user?.name}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoText}>Email:</Text>
+              <Text style={styles.infoValue}>{user?.email}</Text>
+            </View>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoText}>Email:</Text>
-            <Text style={styles.infoValue}>{user?.email}</Text>
+        </View>
+
+        <Text style={styles.subtitle}>Statistics</Text>
+
+        <View style={styles.statisticsContainer}>
+          <View style={styles.statItem}>
+            <Image source={ordersIcon} style={styles.statIcon} />
+            <Text style={styles.statLabel}>Orders</Text>
+            <Text style={styles.statValue}>{order?.count}</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Image source={productsIcon} style={styles.statIcon} />
+            <Text style={styles.statLabel}>Products</Text>
+            <Text style={styles.statValue}>{products?.count}</Text>
           </View>
         </View>
-      </View>
 
-      <Text style={styles.subtitle}>Statistics</Text>
-
-      <View style={styles.statisticsContainer}>
-        <View style={styles.statItem}>
-          <Image source={ordersIcon} style={styles.statIcon} />
-          <Text style={styles.statLabel}>Orders</Text>
-          <Text style={styles.statValue}>{order?.count}</Text>
+        <View style={styles.salesContainer}>
+          <Image source={totalSalesIcon} style={styles.salesIcon} />
+          <Text style={styles.salesLabel}>Total Sales</Text>
+          <Text style={styles.salesValue}>
+            {sales?.totalsales ? sales?.totalsales : 0}
+            <Text style={styles.salesCurrency}> rs</Text>
+          </Text>
         </View>
-        <View style={styles.statItem}>
-          <Image source={productsIcon} style={styles.statIcon} />
-          <Text style={styles.statLabel}>Products</Text>
-          <Text style={styles.statValue}>{products?.count}</Text>
-        </View>
-      </View>
-
-      <View style={styles.salesContainer}>
-        <Image source={totalSalesIcon} style={styles.salesIcon} />
-        <Text style={styles.salesLabel}>Total Sales</Text>
-        <Text style={styles.salesValue}>
-          {sales?.totalsales ? sales?.totalsales : 0}
-          <Text style={styles.salesCurrency}> rs</Text>
-        </Text>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };

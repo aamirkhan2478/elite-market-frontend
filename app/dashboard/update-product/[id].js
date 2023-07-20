@@ -57,9 +57,9 @@ const UpdateProduct = () => {
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
         Toast.show({
-          text1:"Permission Denied!",
-          type:"error",
-        })
+          text1: "Permission Denied!",
+          type: "error",
+        });
       }
     }
 
@@ -195,7 +195,7 @@ const UpdateProduct = () => {
           />
         </View>
         <View style={styles.container}>
-          <Text style={styles.label}>Stock({values.countInStock})</Text>
+          <Text style={styles.label}>Stock({product?.countInStock})</Text>
           <TextInput
             style={styles.input}
             placeholder='Product Stock'
@@ -223,7 +223,7 @@ const UpdateProduct = () => {
           />
         </View>
         <View style={styles.container}>
-          <Text style={styles.label}>Price({values.price}RS)</Text>
+          <Text style={styles.label}>Price({product?.price}RS)</Text>
           <TextInput
             style={styles.input}
             placeholder='Product Price'
@@ -267,7 +267,7 @@ const UpdateProduct = () => {
           </LoadingButton>
         </View>
       </ScrollView>
-      <Toast config={createConfig}/>
+      <Toast config={createConfig} />
     </SafeAreaView>
   );
 };

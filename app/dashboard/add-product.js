@@ -53,9 +53,9 @@ const AddProduct = () => {
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
         Toast.show({
-          text1:"Permission Denied!",
-          type:"error",
-        })
+          text1: "Permission Denied!",
+          type: "error",
+        });
       }
     }
 
@@ -105,6 +105,7 @@ const AddProduct = () => {
     const getCategories = () => dispatch(showCategories());
     getCategories();
   }, [refresh]);
+  
   useFocusEffect(() => {
     if (!token || user?.isAdmin === false) {
       router.push("home");
@@ -170,6 +171,7 @@ const AddProduct = () => {
             style={styles.input}
             placeholder='Product Name'
             onChangeText={(text) => setValues({ ...values, name: text })}
+            defaultValue={values.name}
           />
         </View>
         <View style={styles.container}>
@@ -178,6 +180,7 @@ const AddProduct = () => {
             style={styles.input}
             placeholder='Product Description'
             onChangeText={(text) => setValues({ ...values, description: text })}
+            defaultValue={values.description}
           />
         </View>
         <View style={styles.container}>
@@ -188,6 +191,7 @@ const AddProduct = () => {
             onChangeText={(text) =>
               setValues({ ...values, countInStock: text })
             }
+            defaultValue={values.countInStock}
           />
         </View>
         <View style={styles.container}>
@@ -196,6 +200,7 @@ const AddProduct = () => {
             style={styles.input}
             placeholder='Product Brand'
             onChangeText={(text) => setValues({ ...values, brand: text })}
+            defaultValue={values.brand}
           />
         </View>
         <View style={styles.container}>
@@ -212,6 +217,7 @@ const AddProduct = () => {
             style={styles.input}
             placeholder='Product Price'
             onChangeText={(text) => setValues({ ...values, price: text })}
+            defaultValue={values.price}
           />
         </View>
         <View style={styles.container}>
