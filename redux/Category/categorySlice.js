@@ -1,4 +1,4 @@
-import { showMessage } from "react-native-flash-message";
+import Toast from "react-native-toast-message";
 import axiosInstance from "../../Utils";
 
 //Types
@@ -101,7 +101,7 @@ export const showCategories = () => async (dispatch) => {
     console.log(err.message);
     dispatch({
       type: SHOW_CATEGORIES_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
+      payload: { msg: err.message },
     });
   }
 };
@@ -126,7 +126,7 @@ export const showCategory = (id) => async (dispatch) => {
     console.log(err.message);
     dispatch({
       type: SHOW_CATEGORY_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
+      payload: { msg: err.message },
     });
   }
 };
@@ -148,14 +148,14 @@ export const addCategory = (values, router) => async (dispatch, getState) => {
     router.push("dashboard/show-categories");
     dispatch(showCategories());
   } catch (err) {
+    Toast.show({
+      text1: err.response.data.error,
+      type: "error",
+      visibilityTime: 2500,
+    });
     dispatch({
       type: ADD_CATEGORY_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
-    });
-    showMessage({
-      message: err.response.data.error,
-      type: "danger",
-      icon: "danger",
+      payload: { msg: err.message },
     });
   }
 };
@@ -178,19 +178,19 @@ export const updateCategory =
       router.push("dashboard/show-categories");
       dispatch(showCategories());
     } catch (err) {
-      dispatch({
-        type: UPDATE_CATEGORY_ERROR,
-        payload: { msg: err.response.statusText, status: err.response.status },
-      });
       showMessage({
         message: err.response.data.error,
         type: "danger",
         icon: "danger",
       });
+      dispatch({
+        type: UPDATE_CATEGORY_ERROR,
+        payload: { msg: err.message },
+      });
     }
   };
 
-export const deleteCategory = (id, router) => async (dispatch, getState) => {
+export const deleteCategory = (id) => async (dispatch, getState) => {
   const { token } = getState().auth;
   const config = {
     headers: {
@@ -200,25 +200,20 @@ export const deleteCategory = (id, router) => async (dispatch, getState) => {
   };
   dispatch(setLoading());
   try {
-    await axiosInstance.delete(
-      `category/delete-category/${id}`,
-      values,
-      config
-    );
+    await axiosInstance.delete(`category/delete-category/${id}`, config);
     dispatch({
       type: DELETE_CATEGORY,
     });
-    router.push("dashboard/show-categories");
     dispatch(showCategories());
   } catch (err) {
+    Toast.show({
+      text1: err.response.data.error,
+      type: "error",
+      visibilityTime: 2500,
+    });
     dispatch({
       type: DELETE_CATEGORY_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
-    });
-    showMessage({
-      message: err.response.data.error,
-      type: "danger",
-      icon: "danger",
+      payload: { msg: err.message },
     });
   }
 };

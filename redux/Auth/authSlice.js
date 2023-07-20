@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "../../Utils";
-import { showMessage } from "react-native-flash-message";
+
+import Toast from "react-native-toast-message";
 
 // Actions
 const AUTH_LOADING = "AUTH_LOADING";
@@ -137,10 +138,10 @@ export const loginUser = (values, router) => async (dispatch) => {
     dispatch({
       type: LOGIN_ERROR,
     });
-    showMessage({
-      message: err.response.data.error,
-      type: "danger",
-      icon: "danger",
+    Toast.show({
+      text1: err.response.data.error,
+      type: "error",
+      visibilityTime: 2500,
     });
   }
 };
@@ -162,13 +163,13 @@ export const signupUser = (values, router) => async (dispatch) => {
     data.admin ? router.push("dashboard/index") : router.push("/");
     dispatch(loadUser());
   } catch (err) {
+    Toast.show({
+      text1: err.response.data.error,
+      type: "error",
+      visibilityTime: 2500,
+    });
     dispatch({
       type: SIGNUP_USER_ERROR,
-    });
-    showMessage({
-      message: err.response.data.error,
-      type: "danger",
-      icon: "danger",
     });
   }
 };
@@ -222,23 +223,22 @@ export const changePassword = (values, id) => async (dispatch, getState) => {
       type: CHANGE_PASSWORD,
       payload: data,
     });
-    showMessage({
-      message: data.message,
-      type: "success",
-      icon: "success",
+    Toast.show({
+      text1: err.response.data.error,
+      type: "error",
+      visibilityTime: 2500,
     });
     dispatch(loadUser());
   } catch (err) {
+    Toast.show({
+      text1: err.response.data.error,
+      type: "error",
+      visibilityTime: 2500,
+    });
     dispatch({
       type: CHANGE_PASSWORD_ERROR,
       payload: err.response.data.error,
     });
-    showMessage({
-      message: err.response.data.error,
-      type: "danger",
-      icon: "danger",
-    });
-    console.log(err.response.data);
   }
 };
 
@@ -265,14 +265,14 @@ export const updateUser =
       router.push("profile");
       dispatch(loadUser());
     } catch (err) {
+      Toast.show({
+        text1: err.response.data.error,
+        type: "error",
+        visibilityTime: 2500,
+      });
       dispatch({
         type: UPDATE_USER_ERROR,
         payload: err.response.data.error,
-      });
-      showMessage({
-        message: err.response.data.error,
-        type: "danger",
-        icon: "danger",
       });
     }
   };

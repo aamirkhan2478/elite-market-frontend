@@ -1,4 +1,4 @@
-import { showMessage } from "react-native-flash-message";
+import Toast from "react-native-toast-message";
 import axiosInstance from "../../Utils";
 
 //Types
@@ -63,7 +63,7 @@ export const setLoading = () => {
   };
 };
 
-export const showCart = (userId, limit, page) => async (dispatch, getState) => {
+export const showCart = (userId) => async (dispatch, getState) => {
   const { token } = getState().auth;
   const config = {
     headers: {
@@ -74,7 +74,7 @@ export const showCart = (userId, limit, page) => async (dispatch, getState) => {
   dispatch(setLoading());
   try {
     const { data } = await axiosInstance.get(
-      `cart/user-cart/${userId}?limit=${limit}&page=${page}`,
+      `cart/user-cart/${userId}`,
       config
     );
     dispatch({
@@ -85,7 +85,7 @@ export const showCart = (userId, limit, page) => async (dispatch, getState) => {
     console.log(err.message);
     dispatch({
       type: SHOW_CART_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
+      payload: { msg: err.message },
     });
   }
 };
@@ -104,21 +104,21 @@ export const addCart = (values) => async (dispatch, getState) => {
     dispatch({
       type: ADD_CART,
     });
-    showMessage({
-      message: "Your product has been added to your cart",
+    Toast.show({
+      text1: "Product added to your cart",
       type: "success",
-      icon: "success",
+      visibilityTime: 2500,
     });
-    dispatch(showCart(user._id, 10, 1));
+    dispatch(showCart(user._id));
   } catch (err) {
+    Toast.show({
+      text1: err.response.data.error,
+      type: "error",
+      visibilityTime: 2500,
+    });
     dispatch({
       type: ADD_CART_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
-    });
-    showMessage({
-      message: err.response.data.error,
-      type: "danger",
-      icon: "danger",
+      payload: { msg: err.message },
     });
   }
 };
@@ -139,7 +139,6 @@ export const deleteCart = (id) => async (dispatch, getState) => {
       payload: id,
     });
   } catch (err) {
-    console.log(err.message);
     dispatch({
       type: DELETE_CART_ERROR,
       payload: { error: err.message },

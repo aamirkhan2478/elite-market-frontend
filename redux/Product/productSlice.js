@@ -1,10 +1,11 @@
-import { showMessage } from "react-native-flash-message";
+import Toast from "react-native-toast-message";
 import axiosInstance from "../../Utils";
 
 //Types
 const PRODUCT_LOADING = "PRODUCT_LOADING";
 const ADD_PRODUCT = "ADD_PRODUCT";
 const SHOW_PRODUCTS = "SHOW_PRODUCTS";
+const SHOW_PRODUCTS_BY_CATEGORY_ID = "SHOW_PRODUCTS_BY_CATEGORY_ID";
 const SHOW_PRODUCT = "SHOW_PRODUCT";
 const UPDATE_PRODUCT = "UPDATE_PRODUCT";
 const DELETE_PRODUCT = "DELETE_PRODUCT";
@@ -19,6 +20,7 @@ const DELETE_PRODUCT_ERROR = "DELETE_PRODUCT_ERROR";
 const FEATURED_PRODUCTS_ERROR = "FEATURED_PRODUCTS_ERROR";
 const PRODUCT_COUNT_ERROR = "PRODUCT_COUNT_ERROR";
 const IMAGE_GALLERY_ERROR = "IMAGE_GALLERY_ERROR";
+const SHOW_PRODUCTS_BY_CATEGORY_ID_ERROR = "SHOW_PRODUCTS_BY_CATEGORY_ID_ERROR";
 
 //initialState
 const initialState = {
@@ -26,6 +28,7 @@ const initialState = {
   featuredProducts: [],
   productCount: 0,
   product: {},
+  productsWithCategory: [],
   productLoading: false,
   error: {},
 };
@@ -59,6 +62,12 @@ const productReducer = (state = initialState, action) => {
         products: payload,
         productLoading: false,
       };
+    case SHOW_PRODUCTS_BY_CATEGORY_ID:
+      return {
+        ...state,
+        productsWithCategory: payload,
+        productLoading: false,
+      };
     case SHOW_PRODUCT:
       return {
         ...state,
@@ -86,6 +95,7 @@ const productReducer = (state = initialState, action) => {
     case FEATURED_PRODUCTS_ERROR:
     case PRODUCT_COUNT_ERROR:
     case IMAGE_GALLERY_ERROR:
+    case SHOW_PRODUCTS_BY_CATEGORY_ID_ERROR:
       return {
         ...state,
         productLoading: false,
@@ -104,7 +114,8 @@ export const setLoading = () => {
 };
 
 export const showProducts =
-  (limit, page, search, category) => async (dispatch) => {
+  (limit = 10, page = 1, search = "") =>
+  async (dispatch) => {
     const config = {
       headers: {
         "Content-Type": "application/json",
@@ -113,7 +124,7 @@ export const showProducts =
     dispatch(setLoading());
     try {
       const { data } = await axiosInstance.get(
-        `product/show-products?limit=${limit}&page=${page}&search=${search}&category=${category}`,
+        `product/show-products?limit=${limit}&page=${page}&search=${search}`,
         config
       );
       dispatch({
@@ -124,7 +135,40 @@ export const showProducts =
       console.log(err.message);
       dispatch({
         type: SHOW_PRODUCTS_ERROR,
-        payload: { msg: err.response.statusText, status: err.response.status },
+        payload: {
+          msg: err?.response?.statusText,
+          status: err?.response?.status,
+        },
+      });
+    }
+  };
+
+export const showProductsByCategoryID =
+  (category, page = 1, limit = 10) =>
+  async (dispatch) => {
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    dispatch(setLoading());
+    try {
+      const { data } = await axiosInstance.get(
+        `/product/show-products-by-category-id?category=${category}&limit=${limit}&page=${page}`,
+        config
+      );
+      dispatch({
+        type: SHOW_PRODUCTS_BY_CATEGORY_ID,
+        payload: data,
+      });
+    } catch (err) {
+      console.log(err.message);
+      dispatch({
+        type: SHOW_PRODUCTS_BY_CATEGORY_ID_ERROR,
+        payload: {
+          msg: err?.response?.statusText,
+          status: err?.response?.status,
+        },
       });
     }
   };
@@ -149,7 +193,9 @@ export const showProduct = (id) => async (dispatch) => {
     console.log(err.message);
     dispatch({
       type: SHOW_PRODUCT_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
+      payload: {
+        msg: err.message,
+      },
     });
   }
 };
@@ -174,7 +220,9 @@ export const featuredProduct = () => async (dispatch) => {
     console.log(err.message);
     dispatch({
       type: FEATURED_PRODUCTS_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
+      payload: {
+        msg: err.message,
+      },
     });
   }
 };
@@ -199,7 +247,9 @@ export const productCount = () => async (dispatch, getState) => {
     console.log(err.message);
     dispatch({
       type: PRODUCT_COUNT_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
+      payload: {
+        msg: err.message,
+      },
     });
   }
 };
@@ -219,16 +269,18 @@ export const addProduct = (values, router) => async (dispatch, getState) => {
       type: ADD_PRODUCT,
     });
     router.push("dashboard/show-products");
-    dispatch(showProducts());
+    dispatch(showProducts(10, 1));
   } catch (err) {
+    Toast.show({
+      text1: err.response.data.error,
+      type: "error",
+      visibilityTime: 2500,
+    });
     dispatch({
       type: ADD_PRODUCT_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
-    });
-    showMessage({
-      message: err.response.data.error,
-      type: "danger",
-      icon: "danger",
+      payload: {
+        msg: err.message,
+      },
     });
   }
 };
@@ -251,49 +303,22 @@ export const updateProduct =
       router.push("dashboard/show-products");
       dispatch(showProducts());
     } catch (err) {
+      showMessage({
+        message: err.response.data.error,
+        type: "danger",
+        icon: "danger",
+      });
       dispatch({
         type: UPDATE_PRODUCT_ERROR,
-        payload: { msg: err.response.statusText, status: err.response.status },
-      });
-      showMessage({
-        message: err.response.data.error,
-        type: "danger",
-        icon: "danger",
+        payload: {
+          msg: err?.response?.statusText,
+          status: err?.response?.status,
+        },
       });
     }
   };
 
-export const imageGallery =
-  (values, id, router) => async (dispatch, getState) => {
-    const { token } = getState().auth;
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-        "x-auth-token": token,
-      },
-    };
-    dispatch(setLoading());
-    try {
-      await axiosInstance.put(`product/image-gallery/${id}`, values, config);
-      dispatch({
-        type: IMAGE_GALLERY,
-      });
-      router.push("dashboard/show-products");
-      dispatch(showProducts());
-    } catch (err) {
-      dispatch({
-        type: IMAGE_GALLERY_ERROR,
-        payload: { msg: err.response.statusText, status: err.response.status },
-      });
-      showMessage({
-        message: err.response.data.error,
-        type: "danger",
-        icon: "danger",
-      });
-    }
-  };
-
-export const deleteProduct = (id, router) => async (dispatch, getState) => {
+export const imageGallery = (values, id) => async (dispatch, getState) => {
   const { token } = getState().auth;
   const config = {
     headers: {
@@ -303,21 +328,55 @@ export const deleteProduct = (id, router) => async (dispatch, getState) => {
   };
   dispatch(setLoading());
   try {
-    await axiosInstance.delete(`product/delete-product/${id}`, values, config);
+    await axiosInstance.put(`product/image-gallery/${id}`, values, config);
+    dispatch({
+      type: IMAGE_GALLERY,
+    });
+    dispatch(showProducts());
+    showMessage({
+      message: "Success",
+      icon: "success",
+      type: "success",
+    });
+  } catch (err) {
+    Toast.show({
+      text1: err.response.data.error,
+      type: "error",
+      visibilityTime: 2500,
+    });
+    dispatch({
+      type: IMAGE_GALLERY_ERROR,
+      payload: {
+        msg: err.message,
+      },
+    });
+  }
+};
+
+export const deleteProduct = (id) => async (dispatch, getState) => {
+  const { token } = getState().auth;
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+      "x-auth-token": token,
+    },
+  };
+  dispatch(setLoading());
+  try {
+    await axiosInstance.delete(`product/delete-product/${id}`, config);
     dispatch({
       type: DELETE_PRODUCT,
     });
-    router.push("dashboard/show-products");
-    dispatch(showProducts());
+    dispatch(showProducts(10, 1));
   } catch (err) {
+    Toast.show({
+      text1: err.response.data.error,
+      type: "error",
+      visibilityTime: 2500,
+    });
     dispatch({
       type: DELETE_PRODUCT_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
-    });
-    showMessage({
-      message: err.response.data.error,
-      type: "danger",
-      icon: "danger",
+      payload: { msg: err.message },
     });
   }
 };
