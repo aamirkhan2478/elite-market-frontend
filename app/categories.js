@@ -1,31 +1,50 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Categories from "../components/Categories";
-import { showProducts } from "../redux/Product/productSlice";
+import {
+  showProducts,
+  showProductsByCategoryID,
+} from "../redux/Product/productSlice";
 import NewProducts from "../components/NewProducts";
 import Pagination from "../components/Pagination";
-import AnimatedLoader from "react-native-animated-loader";
+
+import { useFocusEffect } from "expo-router";
 
 const categories = () => {
-  const { categories } = useSelector((state) => state.category);
-  const { products, productLoading } = useSelector((state) => state.product);
+  const { categories: showCategories } = useSelector((state) => state.category);
+  const { productsWithCategory, productLoading } = useSelector(
+    (state) => state.product
+  );
+  const { user, token } = useSelector((state) => state.auth);
   const [categoryID, setCategoryID] = useState("");
   const dispatch = useDispatch();
-  const { products: getProducts, page } = products;
-  const totalPages = Math.ceil(products.totalProducts / 10);
+  const { page } = productsWithCategory;
+  const totalPages = Math.ceil(productsWithCategory.totalProducts / 10);
   const buttonHandler = (id) => {
-    dispatch(showProducts(10, 1, "", id));
+    dispatch(showProductsByCategoryID(id));
     setCategoryID(id);
   };
 
   const onPageChange = (page) => {
-    dispatch(showProducts(10, page, "", categoryID));
+    dispatch(showProductsByCategoryID(categoryID, page));
   };
+
+  useFocusEffect(() => {
+    if (token && user?.isAdmin === true) {
+      router.push("dashboard");
+    }
+  });
 
   return (
     <>
-      <Categories categories={categories} getCategoryId={buttonHandler} />
+      <Categories categories={showCategories} getCategoryId={buttonHandler} />
       <ScrollView>
         {categoryID === "" ? (
           <View style={styles.container}>
@@ -33,27 +52,32 @@ const categories = () => {
               <Text style={styles.text}>Please Select any category</Text>
             </View>
           </View>
-        ) : getProducts.length === 0 ? (
+        ) : productsWithCategory?.products?.length === 0 ? (
           <View style={styles.container}>
             <View style={styles.card}>
               <Text style={styles.text}>No products in this category</Text>
             </View>
           </View>
         ) : productLoading ? (
-          <AnimatedLoader
-            overlayColor='rgba(255,255,255,0.75)'
-            speed={1}
-            visible={productLoading}
-          />
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+              backgroundColor: "lightwhite",
+            }}
+          >
+            <ActivityIndicator color={"blue"} size={50} />
+          </View>
         ) : (
-          <NewProducts items={products} />
-        )}
-        {getProducts.length !== 0 && (
-          <Pagination
-            currentPage={page}
-            onPageChange={onPageChange}
-            totalPages={totalPages}
-          />
+          <>
+            <NewProducts items={productsWithCategory} />
+            <Pagination
+              currentPage={page}
+              onPageChange={onPageChange}
+              totalPages={totalPages}
+            />
+          </>
         )}
       </ScrollView>
     </>

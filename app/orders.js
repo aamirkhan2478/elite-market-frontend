@@ -7,26 +7,30 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
+  ActivityIndicator,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { showOrders } from "../redux/Order/orderSlice";
+import { specificUserOrders } from "../redux/Order/orderSlice";
 import Pagination from "../components/Pagination";
 import Modal from "../components/Modal";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 
 const orders = () => {
-  const { orders: ordersData } = useSelector((state) => state.order);
-  const { user } = useSelector((state) => state.auth);
+  const { specificUserOrders: ordersData, orderLoading } = useSelector(
+    (state) => state.order
+  );
+  const { user, token } = useSelector((state) => state.auth);
   const { orders, page, totalOrders } = ordersData;
   const totalPages = Math.ceil(totalOrders / 10);
   const [visible, setVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [autoRefreshing, setAutoRefreshing] = useState(false);
   const router = useRouter();
 
   const dispatch = useDispatch();
 
   const handlePageChange = (page) => {
-    dispatch(showOrders(user?._id, 10, page));
+    dispatch(specificUserOrders(user?._id, page));
   };
 
   const cancelHandler = () => setVisible(true);
@@ -34,7 +38,7 @@ const orders = () => {
   const modalHandler = () => setVisible(false);
 
   const getOrders = () => {
-    dispatch(showOrders(user?._id, 10, 1));
+    dispatch(specificUserOrders(user?._id));
     setRefreshing(false);
   };
 
@@ -42,6 +46,26 @@ const orders = () => {
     setRefreshing(true);
     getOrders();
   };
+
+  useFocusEffect(() => {
+    if (token && user?.isAdmin === true) {
+      router.push("dashboard");
+    } else if (token && user?.isAdmin === false) {
+      router.push("orders");
+    } else if (!token) {
+      router.push("home");
+    }
+  });
+
+  useFocusEffect(() => {
+    setTimeout(() => {
+      setAutoRefreshing(true);
+    }, 200);
+  });
+
+  useEffect(() => {
+    getOrders();
+  }, [autoRefreshing]);
 
   return (
     <>
@@ -65,15 +89,26 @@ const orders = () => {
         <View style={styles.mainContainer}>
           <Text style={styles.title}>Your Orders</Text>
           <Text style={styles.noteText}>
-            If you don't see your ordered now products then scroll top to refresh
-            your page
+            If you don't see your ordered now products then scroll top to
+            refresh your page
           </Text>
+          {orderLoading && (
+            <View
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: "lightwhite",
+              }}
+            >
+              <ActivityIndicator color={"blue"} size={50} />
+            </View>
+          )}
           {orders?.map((order, i) => (
             <>
-              <View key={i} style={styles.container}>
+              <View key={order._id} style={styles.container}>
                 <Text style={styles.orderNumber}>Order No. {i + 1}</Text>
-                {order?.orderItems?.map((item, index) => (
-                  <View key={index} style={styles.itemContainer}>
+                {order?.orderItems?.map((item) => (
+                  <View key={item?._id} style={styles.itemContainer}>
                     <TouchableOpacity
                       style={styles.itemInfo}
                       onPress={() =>
@@ -153,21 +188,25 @@ const orders = () => {
               </View>
             </>
           ))}
-          <Pagination
-            currentPage={page}
-            onPageChange={handlePageChange}
-            totalPages={totalPages}
-          />
+          {orders?.length !== 0 && (
+            <Pagination
+              currentPage={page}
+              onPageChange={handlePageChange}
+              totalPages={totalPages}
+            />
+          )}
+          {orders?.length === 0 && (
+            <>
+              <View style={styles.mainErrorContainer}>
+                <View style={styles.errorContainer}>
+                  <Text style={styles.text}>
+                    No orders found. Please make an order and come back.
+                  </Text>
+                </View>
+              </View>
+            </>
+          )}
         </View>
-        {orders?.length === 0 && (
-          <View style={styles.mainErrorContainer}>
-            <View style={styles.errorContainer}>
-              <Text style={styles.text}>
-                No orders found. Please make an order and come back.
-              </Text>
-            </View>
-          </View>
-        )}
       </ScrollView>
     </>
   );
@@ -278,7 +317,7 @@ const styles = StyleSheet.create({
   },
   errorContainer: {
     borderWidth: 1,
-    height: 250,
+    height: 300,
     justifyContent: "center",
     borderRadius: 10,
     backgroundColor: "#eaeaea",
