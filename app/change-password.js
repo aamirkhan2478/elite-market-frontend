@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { changePassword } from "../redux/Auth/authSlice";
 import { useFocusEffect } from "expo-router";
 import LoadingButton from "../components/LoadingButton";
-import Toast from "react-native-toast-message";
+import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
 
 const ChangePassword = () => {
   const { user, token, authLoading } = useSelector((state) => state.auth);
@@ -40,9 +40,36 @@ const ChangePassword = () => {
       router.push("home");
     }
   });
+
+  const createConfig = {
+    success: (props) => (
+      <BaseToast
+        {...props}
+        style={{ backgroundColor: "green" }}
+        contentContainerStyle={{ paddingHorizontal: 15 }}
+        text1Style={{
+          fontSize: 17,
+          color: "white",
+        }}
+      />
+    ),
+    error: (props) => (
+      <ErrorToast
+        {...props}
+        style={{ backgroundColor: "red" }}
+        text1Style={{
+          fontSize: 17,
+          color: "white",
+        }}
+        text2Style={{
+          fontSize: 15,
+          color: "white",
+        }}
+      />
+    ),
+  };
   return (
     <View style={styles.container}>
-      <FlashMessage position='top' duration={3000} />
       <TextInput
         placeholder='Password'
         style={styles.input}
@@ -64,7 +91,7 @@ const ChangePassword = () => {
       >
         Change Password
       </LoadingButton>
-      <Toast />
+      <Toast config={createConfig} />
     </View>
   );
 };
