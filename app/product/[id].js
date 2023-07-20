@@ -12,14 +12,16 @@ import plus from "../../assets/icons/plus.png";
 import minus from "../../assets/icons/minus.png";
 import { useDispatch, useSelector } from "react-redux";
 import { showProduct } from "../../redux/Product/productSlice";
-import { useRouter, useSearchParams } from "expo-router";
-import FlashMessage from "react-native-flash-message";
+import { useFocusEffect, useRouter, useSearchParams } from "expo-router";
 import { addCart, showCart } from "../../redux/Cart/cartSlice";
 import Modal from "../../components/Modal";
+import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
+import LoadingButton from "../../components/LoadingButton";
 
 const Product = () => {
   const { product } = useSelector((state) => state.product);
   const { token, user } = useSelector((state) => state.auth);
+  const { cartLoading } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const { id } = useSearchParams();
   const [selectedImages, setSelectedImages] = useState("");
@@ -90,9 +92,40 @@ const Product = () => {
     getCartData();
   }, []);
 
+  useFocusEffect(() => {
+    if (!user) {
+      router.push("home");
+    }
+  });
+  const createConfig = {
+    success: (props) => (
+      <BaseToast
+        {...props}
+        style={{ backgroundColor: "green" }}
+        contentContainerStyle={{ paddingHorizontal: 15 }}
+        text1Style={{
+          fontSize: 17,
+          color: "white",
+        }}
+      />
+    ),
+    error: (props) => (
+      <ErrorToast
+        {...props}
+        style={{ backgroundColor: "red" }}
+        text1Style={{
+          fontSize: 17,
+          color: "white",
+        }}
+        text2Style={{
+          fontSize: 15,
+          color: "white",
+        }}
+      />
+    ),
+  };
   return (
     <>
-      <FlashMessage position='top' duration={3000} />
       <Modal
         message={"First login then add to cart your product"}
         modalVisible={visible}
@@ -245,7 +278,10 @@ const Product = () => {
               <View style={styles.quantityInputContainer}>
                 <TouchableOpacity
                   onPress={plusHandler}
-                  disabled={quantity === product?.countInStock}
+                  disabled={
+                    quantity === product?.countInStock ||
+                    product?.countInStock === 0
+                  }
                 >
                   <Image source={plus} style={{ height: 35, width: 35 }} />
                 </TouchableOpacity>
@@ -261,15 +297,21 @@ const Product = () => {
             <View style={styles.totalContainer}>
               <Text style={styles.totalText}>Total</Text>
               <Text style={styles.totalAmount}>Rs. {totalAmount}</Text>
-              <TouchableOpacity
-                style={styles.addToCartButton}
+              <LoadingButton
+                btnStyles={styles.addToCartButton}
+                textStyles={styles.addToCartText}
+                imageSrc={cart}
+                imageStyle={styles.cartImage}
+                disabled={product?.countInStock === 0}
+                indicatorColor={"white"}
+                isLoading={cartLoading}
                 onPress={cartHandler}
               >
-                <Image source={cart} style={styles.cartImage} />
-                <Text style={styles.addToCartText}>Add to Cart</Text>
-              </TouchableOpacity>
+                Add to Cart
+              </LoadingButton>
             </View>
           </View>
+          <Toast config={createConfig} />
         </View>
       </ScrollView>
     </>

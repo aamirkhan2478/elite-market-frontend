@@ -6,35 +6,34 @@ import {
   ScrollView,
   Image,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import Icon from "../components/Icon";
 import cross from "../assets/icons/cross.png";
 import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { addOrder, showOrder } from "../redux/Order/orderSlice";
 import { deleteCart, showCart } from "../redux/Cart/cartSlice";
-import FlashMessage from "react-native-flash-message";
-import AnimatedLoader from "react-native-animated-loader";
+
+import LoadingButton from "../components/LoadingButton";
+import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
 
 const Cart = () => {
-  const { user } = useSelector((state) => state.auth);
+  const { user, token } = useSelector((state) => state.auth);
   const { cart: userCart, cartLoading } = useSelector((state) => state.cart);
   const { orderLoading } = useSelector((state) => state.order);
   const router = useRouter();
   const { cart } = userCart;
   const { name, email, shippingAddress, city, zip, phone } = user;
   const dispatch = useDispatch();
-  const [orderRefresh, setOrderRefresh] = useState(false);
-  const [cartRefresh, setCartRefresh] = useState(false);
 
   const deleteCartData = (id) => {
     dispatch(deleteCart(id));
-    setCartRefresh(true);
+    dispatch(showCart(user?._id));
   };
 
   const getOrder = () => {
     dispatch(showOrder(user?._id, 10, 1));
-    setOrderRefresh(false);
   };
 
   const orderHandler = () => {
@@ -53,32 +52,57 @@ const Cart = () => {
       phone,
       user: user._id,
     };
-    dispatch(addOrder(values));
+    dispatch(addOrder(values, router));
     dispatch(deleteCart(cart?.map((data) => data._id)));
     getOrder();
-    setCartRefresh(true);
   };
 
   useEffect(() => {
     const getCartData = () => {
-      dispatch(showCart(user?._id, 10, 1));
-      setCartRefresh(false);
+      dispatch(showCart(user?._id));
     };
     getCartData();
-  }, [cartRefresh, dispatch, showCart, user]);
+  }, []);
 
+  useFocusEffect(() => {
+    if (user?.isAdmin === true) {
+      router.push("dashboard");
+    } else if (!token) {
+      router.push("home");
+    }
+  });
+  const createConfig = {
+    success: (props) => (
+      <BaseToast
+        {...props}
+        style={{ backgroundColor: "green" }}
+        contentContainerStyle={{ paddingHorizontal: 15 }}
+        text1Style={{
+          fontSize: 17,
+          color: "white",
+        }}
+      />
+    ),
+    error: (props) => (
+      <ErrorToast
+        {...props}
+        style={{ backgroundColor: "red" }}
+        text1Style={{
+          fontSize: 17,
+          color: "white",
+        }}
+        text2Style={{
+          fontSize: 15,
+          color: "white",
+        }}
+      />
+    ),
+  };
   return (
     <>
-      <FlashMessage position={"top"} duration={3000} />
-      <AnimatedLoader
-        overlayColor='rgba(255,255,255,0.75)'
-        speed={1}
-        visible={cartLoading || orderLoading}
-      />
       <ScrollView style={{ backgroundColor: "#eaeaea" }}>
         <View style={styles.container}>
           <Text style={styles.title}>Your Cart & Checkout Please</Text>
-
           <View style={styles.cartContainer}>
             <View style={styles.table}>
               <View style={styles.headerRow}>
@@ -88,15 +112,27 @@ const Cart = () => {
                 <Text style={styles.headerText}>Price</Text>
                 <Text style={styles.headerText}>Remove</Text>
               </View>
-              {cart?.length !== 0 ? (
-                cart?.map((cartData, index) => (
-                  <View style={styles.row} key={index}>
-                    <Image
-                      source={{
-                        uri: cartData?.product?.image,
-                      }}
-                      style={[styles.itemImage, styles.cell]}
-                    />
+              {cartLoading ? (
+                <View
+                  style={{
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "lightwhite",
+                  }}
+                >
+                  <ActivityIndicator color={"blue"} size={50} />
+                </View>
+              ) : cart?.length !== 0 ? (
+                cart?.map((cartData) => (
+                  <View style={styles.row} key={cartData?._id}>
+                    <View style={styles.cell}>
+                      <Image
+                        source={{
+                          uri: cartData?.product?.image,
+                        }}
+                        style={styles.itemImage}
+                      />
+                    </View>
                     <Text style={styles.cell}>{cartData?.product?.name}</Text>
                     <Text style={styles.cell}>{cartData?.quantity}</Text>
                     <Text style={styles.cell}>Rs. {cartData?.totalPrice}</Text>
@@ -156,14 +192,18 @@ const Cart = () => {
             >
               <Text style={styles.editButtonText}>Edit Your Address</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.editButton("green")}
+            <LoadingButton
+              btnStyles={styles.editButton("green")}
+              indicatorColor={"white"}
+              isLoading={orderLoading}
               onPress={orderHandler}
+              textStyles={styles.editButtonText}
               disabled={cart?.length === 0}
             >
-              <Text style={styles.editButtonText}>Order Now</Text>
-            </TouchableOpacity>
+              Order Now
+            </LoadingButton>
           </View>
+          <Toast config={createConfig} />
         </View>
       </ScrollView>
     </>
